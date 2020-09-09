@@ -91,6 +91,11 @@ class Lookup(object):
             self.locs[base, limit] = [a[0] for a in symbols]
             self.names[base, limit] = [a[1] for a in symbols]
 
+    def get_module(self, loc):
+        for base, limit in self.addrs:
+            if loc >= base and loc < limit:
+                return self.addrs[base, limit]['name']
+
     def lookup(self, loc):
         if loc in self._cache:
             return self._cache[loc]
@@ -104,9 +109,11 @@ class Lookup(object):
                 idx = bisect_right(locs, loc) - 1
                 diff = loc - locs[idx]
                 if diff:
-                    ret = "%s!%s+%#x" % (mod, names[idx], diff)
+                    ret = "%s+%#x" % (names[idx], diff)
+                    #ret = "%s!%s+%#x" % (mod, names[idx], diff)
                 else:
-                    ret = "%s!%s" % (mod, names[idx])
+                    ret = "%s" % (names[idx])
+                    #ret = "%s!%s" % (mod, names[idx])
                 self._cache[loc] = ret
                 return ret
         return "unknown"
